@@ -71,39 +71,65 @@
             }
         }
 
-        function nextScreen() {
+        function nextScreen(direction) {
             var screens = document.querySelectorAll('iframe');
             screens[currentScreen].style.display = 'none';
-            currentScreen++;
-            if (currentScreen >= screens.length) {
-                currentScreen = 0;
+            if (direction < 0) {
+                currentScreen--;
+                if (currentScreen < 0) {
+                    currentScreen = screens.length - 1;
+                }
+            } else {
+                currentScreen++;
+                if (currentScreen >= screens.length) {
+                    currentScreen = 0;
+                }
             }
+
             screens[currentScreen].style.display = 'block';
+        }
+
+        function assignControlEvents() {
+            document.querySelector('.controls .play').onclick = function() {
+                if (timer) {
+                    window.clearInterval(timer);
+                    timer = null;
+                    this.innerHTML = 'Play';
+                } else {
+                    timer = window.setInterval(nextScreen, screenSwitchTimeout);
+                    this.innerHTML = 'Pause';
+                }
+                return false;
+            };
+
+            document.querySelector('.controls .next').onclick = function() {
+                nextScreen();
+                return false;
+            };
+
+            document.querySelector('.controls .prev').onclick = function() {
+                nextScreen(-1);
+                return false;
+            };
         }
 
         window.addEventListener('load', function() {
             zbxLogin(function() {
                 addIframes();
                 timer = window.setInterval(nextScreen, screenSwitchTimeout);
-
-                var control = document.querySelector('.controls .play');
-                control.onclick = function() {
-                    if (timer) {
-                        window.clearInterval(timer);
-                        timer = null;
-                    } else {
-                        timer = window.setInterval(nextScreen, screenSwitchTimeout);
-                    }
-                    return false;
-                };
             });
+            assignControlEvents();
         });
 
     </script>
 </head>
 <body>
 <div class="controls">
-    <a href="#" class="play">Play/pause</a>
+    <a href="#" class="play">Pause</a>
+    &nbsp;&nbsp;
+    <a href="#" class="prev">&lt;&lt-- Previous screen</a>
+    &nbsp;&nbsp;
+    <a href="#" class="next">Next screen --&gt;&gt;</a>
 </div>
 </body>
 </html>
