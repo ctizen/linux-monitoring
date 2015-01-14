@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            /*display: none;*/
+        }
+        .controls {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            background-color: #ddd;
+            padding: 10px;
+        }
+    </style>
+    <script>
+        var screenSwitchTimeout = 20000;
+        var currentScreen = 0;
+        var timer = null;
+
+        function zbxLogin(callback) {
+            var form = document.createElement('IFRAME');
+            form.src = 'http://zbx.nato';
+            debugger;
+            form.onload = function() {
+                if (form.contentWindow.document.querySelector('.loginForm')) {
+                    form.contentWindow.document.querySelector('#name').value = 'online';
+                    form.contentWindow.document.querySelector('#password').value = 'online';
+                    form.contentWindow.document.querySelector('#autologin').checked = true;
+                    form.contentWindow.document.querySelector('#enter').click();
+                    window.setTimeout(callback, 1000);
+                    window.setTimeout(function() {
+                        document.body.removeChild(form);
+                    }, 1000);
+                } else {
+                    window.setTimeout(function() {
+                        document.body.removeChild(form);
+                        callback();
+                    }, 1000);
+		}
+            };
+            document.body.appendChild(form);
+        }
+
+        function addIframes() {
+            var links = [
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=114",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=113",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=117",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=116",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=115",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=110",
+                "http://zbx.nato/screens.php?form_refresh=1&fullscreen=1&elementid=112"
+            ];
+
+            for (var i in links) {
+                var frame = document.createElement('IFRAME');
+                frame.src = links[i];
+                document.body.appendChild(frame);
+            }
+        }
+
+        function nextScreen() {
+            var screens = document.querySelectorAll('iframe');
+            screens[currentScreen].style.display = 'none';
+            currentScreen++;
+            if (currentScreen >= screens.length) {
+                currentScreen = 0;
+            }
+            screens[currentScreen].style.display = 'block';
+        }
+
+        window.addEventListener('load', function() {
+            zbxLogin(function() {
+                addIframes();
+                timer = window.setInterval(nextScreen, screenSwitchTimeout);
+
+                var control = document.querySelector('.controls .play');
+                control.onclick = function() {
+                    if (timer) {
+                        window.clearInterval(timer);
+                        timer = null;
+                    } else {
+                        timer = window.setInterval(nextScreen, screenSwitchTimeout);
+                    }
+                    return false;
+                };
+            });
+        });
+
+    </script>
+</head>
+<body>
+<div class="controls">
+    <a href="#" class="play">Play/pause</a>
+</div>
+</body>
+</html>
+
