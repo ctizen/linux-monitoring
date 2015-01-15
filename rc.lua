@@ -78,6 +78,28 @@ for s = 1, screen.count() do
 end
 -- }}}
 
+
+-- {{{ Keyboard layouts
+ 
+-- Keyboard map indicator and changer
+kbdcfg = {}
+kbdcfg.cmd = "xkb-switch -s"
+kbdcfg.layout = { "us", "ru" }
+kbdcfg.current = 1  -- us is our default layout
+kbdcfg.widget = widget({ type = "textbox" })
+kbdcfg.widget.text = " " .. kbdcfg.layout[kbdcfg.current] .. " "
+kbdcfg.switch = function ()
+  kbdcfg.current = kbdcfg.current % #(kbdcfg.layout) + 1
+  local layout = kbdcfg.layout[kbdcfg.current]
+  kbdcfg.widget.text = " " .. layout .. " "
+  os.execute( kbdcfg.cmd .. " " .. layout )
+end
+
+ -- Mouse bindings
+kbdcfg.widget:buttons(
+ awful.util.table.join(awful.button({ }, 1, function () kbdcfg.switch() end))
+)
+
 -- {{{ Menu
 -- Create a laucher widget and a main menu
 myawesomemenu = {
@@ -179,6 +201,7 @@ for s = 1, screen.count() do
             layout = awful.widget.layout.horizontal.leftright
         },
         mylayoutbox[s],
+        kbdcfg.widget,
         mytextclock,
         s == 1 and mysystray or nil,
         mytasklist[s],
@@ -243,8 +266,15 @@ globalkeys = awful.util.table.join(
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 
+    -- Alt + Right Shift switches the current keyboard layout
+    awful.key({ "Mod1" }, "space", function () kbdcfg.switch() end),
+
     -- Prompt
-    awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
+    awful.key({ modkey },            "r",     function () 
+       if kbdcfg.layout[kbdcfg.current] == "us" then
+           mypromptbox[mouse.screen]:run()
+       end
+    end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -380,3 +410,4 @@ awful.util.spawn_with_shell("mate-settings-daemon")
 awful.util.spawn_with_shell("google-chrome --test-type --allow-files-access-from-files --disable-web-security \"/home/online/monitoring/monitor.html\"")
 awful.util.spawn_with_shell("xset -dpms")
 awful.util.spawn_with_shell("xset s off")
+
