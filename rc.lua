@@ -376,6 +376,7 @@ client.add_signal("focus", function(c) c.border_color = beautiful.border_focus e
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
-
-awful.util.spawn_with_shell("google-chrome --test-type --allow-files-access-from-files --disable-web-security --kiosk \"/home/online/monitoring/monitor.html\"")
-
+awful.util.spawn_with_shell("mate-settings-daemon")
+awful.util.spawn_with_shell("google-chrome --test-type --allow-files-access-from-files --disable-web-security \"/home/online/monitoring/monitor.html\"")
+awful.util.spawn_with_shell("xset -dpms")
+awful.util.spawn_with_shell("xset s off")
